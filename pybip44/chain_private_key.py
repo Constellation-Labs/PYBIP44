@@ -7,7 +7,7 @@ Description:
 
 from neocore import KeyPair
 from .hdkeys import PrivateKey
-from .chain_public_key import BTCPublicKey, ETHPublicKey, NEOPublicKey, ONTPublicKey
+from .chain_public_key import BTCPublicKey, ETHPublicKey, DAGPublicKey, NEOPublicKey, ONTPublicKey
 
 class BTCPrivateKey(PrivateKey):
     
@@ -24,6 +24,15 @@ class ETHPrivateKey(BTCPrivateKey):
     def public_key(self):
         if self._public_key is None:
             self._public_key = ETHPublicKey.from_point(BTCPublicKey.curve.public_key(self.key))
+        return self._public_key
+
+
+class DAGPrivateKey(BTCPrivateKey):
+
+    @property
+    def public_key(self):
+        if self._public_key is None:
+            self._public_key = DAGPublicKey.from_point(BTCPublicKey.curve.public_key(self.key))
         return self._public_key
 
 

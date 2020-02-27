@@ -8,7 +8,7 @@ from two1.crypto.ecdsa import secp256k1, ECPointAffine
 from neocore.Cryptography.Crypto import Crypto
 from eth_utils import encode_hex
 from .hdkeys import PublicKey
-from .utils import binascii, hashlib, base58
+from .utils import base58, binascii, hashlib
 
 class BTCPublicKey(PublicKey):
     
@@ -53,6 +53,26 @@ class ETHPublicKey(BTCPublicKey):
     @staticmethod
     def from_point(point):
         return ETHPublicKey(point.x, point.y)
+
+
+class DAGPublicKey(BTCPublicKey):
+
+    bytes_seed_name = b"DAG seed"
+
+    def address(self, compressed=True):
+        pub_key_bytes = bytes(self)
+        encoded_key_hash = str(base58.b58encode(hashlib.sha256(pub_key_bytes).digest()))
+        end = encoded_key_hash[len(encoded_key_hash) - 36: len(encoded_key_hash)]
+        valid_ints = list(filter(lambda x: x.isdigit(), end))
+        valid_ints_casted = list(map(lambda x: int(x), valid_ints))
+        valid_int_sum = sum(valid_ints_casted)
+        par = str(valid_int_sum % 9)
+        address = "DAG" + par + end
+        return address
+
+    @staticmethod
+    def from_point(point):
+        return DAGPublicKey(point.x, point.y)
 
 
 class NEOPublicKey(PublicKey):
